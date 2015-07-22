@@ -32,13 +32,14 @@ class Paste(db.Model):
     user_hash = db.Column(db.String(40), nullable=True)
     handled = db.Column(db.Boolean)
     private_id = db.Column(db.String(40), unique=True, nullable=True)
-
+    username = db.Column(db.Text)
+	
     children = db.relation('Paste', cascade='all',
         primaryjoin=parent_id == paste_id,
         backref=db.backref('parent', remote_side=[paste_id]))
 
-    def __init__(self, code, language, parent=None, user_hash=None,
-                 private=False):
+    def __init__(self, code, language, username, parent=None,
+		user_hash=None, private=False):
         if language not in LANGUAGES:
             language = 'text'
         self.code = u'\n'.join(code.splitlines())
@@ -51,6 +52,7 @@ class Paste(db.Model):
         self.handled = False
         self.user_hash = user_hash
         self.private = private
+        self.username = username
 
     @staticmethod
     def get(identifier):
