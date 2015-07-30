@@ -10,6 +10,8 @@
 """
 from werkzeug import redirect, Response
 from werkzeug.exceptions import NotFound
+from werkzeug.wrappers import BaseRequest
+from werkzeug.wrappers import Request
 from lodgeit import local
 from lodgeit.lib import antispam
 from lodgeit.i18n import list_languages as i18n_list_languages, _
@@ -26,6 +28,7 @@ class PasteController(object):
 
     def new_paste(self, language=None):
         """The 'create a new paste' view."""
+        
         language = local.request.args.get('language', language)
         if language is None:
             language = local.request.session.get('language', 'text')
@@ -35,7 +38,8 @@ class PasteController(object):
         parent = None
         req = local.request
         getform = req.form.get
-
+        username = req.authorization.username
+        
         if local.request.method == 'POST':
             code = getform('code', u'')
             language = getform('language')
@@ -56,13 +60,12 @@ class PasteController(object):
                                   'CAPTCHA solution was incorrect')
                 show_captcha = True
             if code and language and not error:
-                paste = Paste(code, language, parent, req.user_hash,
-                              'private' in req.form)
-                db.session.add(paste)
-                db.session.commit()
-                local.request.session['language'] = language
-                return redirect(paste.url)
-
+			paste = Paste(username, code, language, parent, req.user_hash, 
+                    'private' in req.form )
+            db.session.add(paste)
+            db.session.commit()
+            local.request.session['language'] = language
+            return redirect(paste.url)
         else:
             if local.request.args.get('private', '0') != '0':
                 private = True
@@ -73,6 +76,7 @@ class PasteController(object):
                     code = parent.code
                     language = parent.language
                     private = parent.private
+                    
 
         return render_to_response('new_paste.html',
             languages=list_languages(),
@@ -82,6 +86,7 @@ class PasteController(object):
             error=error,
             show_captcha=show_captcha,
             private=private
+            
         )
 
     def show_paste(self, identifier, raw=False):
@@ -192,3 +197,4 @@ class PasteController(object):
 
 
 controller = PasteController
+

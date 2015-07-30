@@ -32,13 +32,13 @@ class Paste(db.Model):
     user_hash = db.Column(db.String(40), nullable=True)
     handled = db.Column(db.Boolean)
     private_id = db.Column(db.String(40), unique=True, nullable=True)
-    username = db.Column(db.Text)
-	
+    username = db.Column(db.String(40)) #adds a new column to db 
+
     children = db.relation('Paste', cascade='all',
         primaryjoin=parent_id == paste_id,
         backref=db.backref('parent', remote_side=[paste_id]))
 
-    def __init__(self, code, language, username, parent=None,
+    def __init__(self, username, code, language,  parent=None,
 		user_hash=None, private=False):
         if language not in LANGUAGES:
             language = 'text'

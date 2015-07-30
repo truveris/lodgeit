@@ -62,7 +62,7 @@ def system_list_methods():
 
 
 @exported('pastes.newPaste')
-def pastes_new_paste(language, code, parent_id=None,
+def pastes_new_paste(language, code, username, parent_id=None,
                      filename='', mimetype='', private=False):
     """Create a new paste. Return the new ID.
 
@@ -82,14 +82,13 @@ def pastes_new_paste(language, code, parent_id=None,
     db.session.commit()
     return paste.identifier
 
-
 @exported('pastes.getPaste')
 def pastes_get_paste(paste_id):
     """Get all known information about a paste by a given paste id.
 
     Return a dictionary with these keys:
     `paste_id`, `code`, `parsed_code`, `pub_date`, `language`,
-    `parent_id`, `url`.
+    `parent_id`, `url`, `username`.
     """
     paste = Paste.get(paste_id)
     if paste is not None:
